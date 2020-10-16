@@ -1,35 +1,94 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.CompilerServices;
+using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Chess
 {
-    class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
             Piece[,] board = new Piece[8, 8];
-            Player p1 = new Player();
-            Player p2 = new Player();
             initializeBoard(board);
             displayBoard(board);
+            Player p1 = new Player(getPlayerNames(1));
+            Player p2 = new Player(getPlayerNames(2));
             playGame(board, p1, p2);
         }
-
         private static void playGame(Piece[,] board, Player p1, Player p2)
         {
-            bool gameOver = false; 
-            while(gameOver == false)
+            int turns = 0;
+            bool gameOver = false;
+            while (gameOver == false)
             {
-
+                if (turns % 2 == 0) //if turn is even, starting with player 0 
+                {
+                    takeTurn(p1, p2, board);
+                    if (determineIfAnyoneHasWonYet(p2, p1) == true)
+                    {
+                        gameOver = true;
+                        displayScores(p1, p2);
+                        break;
+                    }
+                }
+                else
+                {
+                    takeTurn(p2, p1, board);
+                    if (determineIfAnyoneHasWonYet(p1, p2) == true)
+                    {
+                        gameOver = true;
+                        displayScores(p1, p2);
+                        break;
+                    }
+                }
             }
         }
-
-        private static void initializeBoard(Piece[,] board) 
+        private static void takeTurn(Player currentPlayer, Player opposingPlayer, Piece[,] board)
+        {            
+            string input = "";
+            Console.WriteLine(currentPlayer.Name + ", please enter coordinates of piece you wish to move:\nEx) '01'");
+            input = Console.ReadLine();
+            errorCheckEntry(input);
+            int x = ToInt(input[0]);
+            int y = ToInt(input[1]);
+            Console.WriteLine(currentPlayer.Name + ", please enter coordinates you wish to move your" + board[x, y].Name + " to:\nEx) '01'");
+            input = Console.ReadLine();
+            errorCheckEntry(input);
+            int a = ToInt(input[0]);
+            int b = ToInt(input[1]); //x,y is piece to move, a,b is desired location
+            
+            //determine if chosen piece is actually able to move to target location. If not, ask player to choose another valid location. 
+            //if no valid locations exist for selected piece to move, touch move rule applies and current player loses. Make better choices! 
+            //then determine results of that move - i.e is it moving to a blank tile or is taking a piece? If latter, update score
+            makePlay(x,y,a,b);   
+        }
+        private static void errorCheckEntry(string input)
+        {
+            while (input.Length != 2 || (ToInt(input[0]) > 9 || ToInt(input[0]) < 0) || (ToInt(input[1]) > 9 || ToInt(input[1]) < 0))
+            {
+                Console.WriteLine("Invalid Entry: \nPlease enter a two character string. \nFirst character represents the x coordinate, and second character represents the y coordinate");
+                input = Console.ReadLine();
+            }
+        }
+        private static bool determineIfAnyoneHasWonYet(Player p, Player q)
+        {
+            if (p.KingIsDead == true)
+            {
+                Console.WriteLine(q.Name + " wins!");
+            }
+            return p.KingIsDead;
+        }
+        private static void displayScores(Player p1, Player p2)
+        {
+            Console.WriteLine("Scores:\n" + p1.Name + ": " + p1.Score + "\n" + p2.Name + ": " + p2.Score);
+        }
+        private static void initializeBoard(Piece[,] board)
         {
             for (int i = 0; i <= 7; i++)
             {
                 for (int j = 0; j <= 7; j++)
                 {
-                    board[i,j] = determinePiece(i, j);
+                    board[i, j] = determinePiece(i, j);
                 }
             }
         }
@@ -40,7 +99,7 @@ namespace Chess
             int titleId = 0;
             int pointsVal = 0;
             bool isPiece = false;
-            
+
             if (i == 0 || i == 1) //if piece is white
             {
                 color = 1;
@@ -114,10 +173,17 @@ namespace Chess
                 Console.Write("0 ");
                 for (int j = 0; j < 8; j++)
                 {
-                    Console.Write("[" + displayPiece(board[i,j]) + "]");
+                    Console.Write("[" + displayPiece(board[i, j]) + "]");
                 }
                 Console.WriteLine();
             }
+        }
+        private static string getPlayerNames(int n)
+        {
+            string name = "";
+            Console.WriteLine("Player " + n + ", please enter your name:");
+            name = Console.ReadLine();
+            return name;
         }
         private static string displayPiece(Piece piece)
         {
@@ -135,6 +201,10 @@ namespace Chess
                 p += "T";//tile
             }
             return (p + piece.Name);
+        }
+        private static int ToInt(this char c)
+        {
+            return (int)(c - '0');
         }
     }
     class Piece
@@ -171,5 +241,18 @@ namespace Chess
     {
         public string Name { get; set; }
         public int Score { get; set; }
+        public bool KingIsDead { get; set; }
+        public Player()
+        {
+            this.Name = "uninitialized";
+            this.Score = 0;
+            this.KingIsDead = false;
+        }
+        public Player(string name)
+        {
+            this.Name = name;
+            this.Score = 0;
+            this.KingIsDead = false;
+        }
     }
 }
