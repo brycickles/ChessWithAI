@@ -90,6 +90,8 @@ namespace Chess
                 case 0: //tile                    
                     break;
                 case 1: //pawn
+                    checkIfValidPawn(board[x, y], board[a, b]);
+                    pawnMove(board[x, y], board[a, b]);
                     break;
                 case 2: //bishop
                     break;
@@ -103,6 +105,24 @@ namespace Chess
                     break;
             }
         }
+
+        private static void checkIfValidPawn(Piece piece1, Piece piece2)
+        {
+            if(piece1.Color == 0) //white 
+            {
+                //piece will find moves valid only if they can move forward - ex, a white pawn starts at position [1, 0-7], and logically, next move would only be legal if 
+                //pawn 
+            }else
+            {
+
+            }
+        }
+
+        private static void pawnMove(Piece piece1, Piece piece2)
+        {
+            throw new NotImplementedException();
+        }
+
         private static void errorCheckEntry(string input)
         {
             while (input.Length != 2 || (ToInt(input[0]) > 9 || ToInt(input[0]) < 0) || (ToInt(input[1]) > 9 || ToInt(input[1]) < 0))
@@ -134,7 +154,7 @@ namespace Chess
                 }
             }
 
-            
+
             //here we will transpose the array and then displayBoard will display the rotated array 
 
             //before transpose
@@ -365,5 +385,59 @@ class Player
         this.KingIsDead = false;
     }
 }
+#region AI
+//this class is pseudocode at the moment - will begin design following this concept once manual game is finished
+//class AiPlaceholder
+//{
+//    public int miniMax(int[] position, int depth, int alpha, int beta, bool maximizingPlayer)
+//    {
+//        //alpha and beta used to track best moves for white/black respectively
+//        int maxEval = 0;
+//        int minEval = 0;
+//        int eval = 0; 
+
+//        if (maximizingPlayer)
+//        {
+//            maxEval = Int32.MinValue;
+//            foreach (int childNode of position)
+//            {
+//                eval = miniMax(childNode, depth - 1, alpha, beta, false);
+//                maxEval = max(alpha, eval);
+//                alpha = max(alpha, eval); 
+//                if(beta <= alpha)
+//                {
+//                    break;
+//                }
+
+//            }
+//            return maxEval; 
+//        } 
+//        else
+//        {
+//            minEval = Int32.MaxValue;
+//            foreach(int childNode of position){
+//                eval = miniMax(childNode, depth - 1, alpha, beta, true);
+//                minEval = minEval(minEval, eval);
+//                beta = minEval(beta, eval); 
+//            }
+//            return minEval;
+//        }
+//        return minEval;
+//    }
+
+//    private int max(int alpha, int eval)
+//    {
+//        int r = 0;
+//        if(alpha > eval)
+//        {
+//            r = alpha;
+//        }else
+//        {
+//            r = eval;
+//        }
+//        return r;
+//    }
+//}
+#endregion
 
 
